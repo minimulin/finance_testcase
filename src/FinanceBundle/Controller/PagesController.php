@@ -14,6 +14,24 @@ class PagesController extends Controller
      */
     public function indexAction()
     {
-        return ['name' => 'saasas'];
+        return [];
+    }
+
+    /**
+     * @Route("/shares") name="shares"
+     * @Template()
+     */
+    public function sharesAction()
+    {
+        return [];
+    }
+
+    /**
+     * @Route("/portfolio") name="portfolio"
+     * @Template()
+     */
+    public function portfolioAction()
+    {
+        return [];
     }
 }

@@ -1,0 +1,30 @@
+{% extends 'FinanceBundle::base.html.twig' %}
+{% trans_default_domain 'FOSUserBundle' %}
+
+{% block body %}
+    {% block fos_user_content %}
+    	<form class="form-register" action="{{ path('fos_user_registration_register') }}" {{ form_enctype(form) }} method="POST">
+    		<h2 class="form-register-heading">{{ 'layout.register'|trans }}</h2>
+
+		    <div class="form-group" id="fos_user_registration_form">
+		        {{ form_widget(form.email, { 'attr': {'class': 'form-control', 'placeholder': 'form.email'|trans } }) }}
+		        {{ form_errors(form.email) }}
+
+		        {{ form_widget(form.username, { 'attr': {'class': 'form-control', 'placeholder': 'form.username'|trans } }) }}
+		        {{ form_errors(form.username) }}
+
+		        {{ form_widget(form.plainPassword.first, { 'attr': {'class': 'form-control', 'placeholder': 'form.password'|trans } }) }}
+		        {{ form_errors(form.plainPassword.first) }}
+
+		        {{ form_widget(form.plainPassword.second, { 'attr': {'class': 'form-control', 'placeholder': 'form.password_confirmation'|trans } }) }}
+		        {{ form_errors(form.plainPassword.second) }}
+
+		        {{ form_rest(form) }}
+
+		    </div>
+		    <div>
+		        <input class="btn btn-lg btn-primary btn-block" type="submit" value="{{ 'registration.submit'|trans }}">
+		    </div>
+		</form>
+    {% endblock %}
+{% endblock %}
