@@ -1,0 +1,25 @@
+{% extends 'FinanceBundle::base.html.twig' %}
+
+{% block body -%}
+	<h1>Portfolio creation</h1>
+
+	{{ form(form) }}
+
+	<ul class="record_actions">
+		<li>
+			<a href="{{ path('portfolio') }}">
+				Back to the list
+			</a>
+		</li>
+	</ul>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("select").chosen({width: "30%"});
+		});
+	</script>
+{% endblock %}

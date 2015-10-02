@@ -25,13 +25,4 @@ class PagesController extends Controller
     {
         return [];
     }
-
-    /**
-     * @Route("/portfolio") name="portfolio"
-     * @Template()
-     */
-    public function portfolioAction()
-    {
-        return [];
-    }
 }

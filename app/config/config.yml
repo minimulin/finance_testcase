@@ -42,7 +42,8 @@ twig:
 assetic:
     debug:          "%kernel.debug%"
     use_controller: false
-    bundles:        [ ]
+    bundles:
+        - FinanceBundle
     #java: /usr/bin/java
     filters:
         cssrewrite: ~
