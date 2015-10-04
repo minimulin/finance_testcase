@@ -16,13 +16,4 @@ class PagesController extends Controller
     {
         return [];
     }
-
-    /**
-     * @Route("/shares") name="shares"
-     * @Template()
-     */
-    public function sharesAction()
-    {
-        return [];
-    }
 }
