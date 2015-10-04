@@ -392,7 +392,7 @@ body {
     background-size: 52px 37px !important;
     background-repeat: no-repeat !important; } }
 
-.records_list {
+.records_list, .record_properties  {
   width: 100%;
 }
 
@@ -406,6 +406,9 @@ body {
   margin: 0;
 }
 .list-actions li, .record_actions li {
-  display: inline;
-  padding-right: 20px;
+  margin: 10px 0;
+}
+
+.filter {
+  margin: 20px 0;
 }

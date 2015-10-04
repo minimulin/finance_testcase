@@ -15,8 +15,12 @@ class ShareType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
-            ->add('code')
+            ->add('name','text',[
+                'translation_domain' => 'app'
+            ])
+            ->add('code','text',[
+                'translation_domain' => 'app'
+            ])
         ;
     }
     

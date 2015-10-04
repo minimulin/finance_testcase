@@ -27,11 +27,6 @@ class PortfolioController extends Controller
      */
     public function indexAction()
     {
-        $client = new \Scheb\YahooFinanceApi\ApiClient();
-
-
-        $data = $client->getQuotesList("YHOO"); //Single stock
-
         $em = $this->getDoctrine()->getManager();
 
         $user = $this->getUser();
@@ -87,7 +82,7 @@ class PortfolioController extends Controller
             'method' => 'POST',
         ));
 
-        $form->add('submit', 'submit', array('label' => 'Create'));
+        $form->add('submit', 'submit', array('label' => $this->get('translator')->trans('Create', [], 'app')));
 
         return $form;
     }
@@ -129,9 +124,34 @@ class PortfolioController extends Controller
 
         $deleteForm = $this->createDeleteForm($id);
 
+        $chartData = $this->get('yahoo_finance')->getDataForLast2Years($entity->getShares());
+        $share_names = [];
+        foreach ($entity->getShares() as $share) {
+            $share_names[] = $share->getName();
+        }
+
+        $portfolio_trans = $translated = $this->get('translator')->trans('portfolio', [], 'app');
+
+        foreach ($chartData as $key => $dayData) {
+            $chartData[$key][$portfolio_trans] = 0;
+            foreach ($share_names as $name) {
+                if (!isset($dayData[$name])) {
+                    $chartData[$key][$name] = 0;
+                } else {
+                    $chartData[$key][$portfolio_trans] += $chartData[$key][$name];
+                }
+            }
+        }
+
+        $share_names[] = $portfolio_trans;
+
+        ksort($chartData);
+
         return array(
             'entity' => $entity,
             'delete_form' => $deleteForm->createView(),
+            'chart_data' => $chartData,
+            'share_names' => $share_names,
         );
     }
 
@@ -176,7 +196,7 @@ class PortfolioController extends Controller
             'method' => 'PUT',
         ));
 
-        $form->add('submit', 'submit', array('label' => 'Update'));
+        $form->add('submit', 'submit', array('label' => $this->get('translator')->trans('Update', [], 'app')));
 
         return $form;
     }
@@ -251,7 +271,7 @@ class PortfolioController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('portfolio_delete', array('id' => $id)))
             ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => 'Delete'))
+            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('Delete', [], 'app')))
             ->getForm()
         ;
     }

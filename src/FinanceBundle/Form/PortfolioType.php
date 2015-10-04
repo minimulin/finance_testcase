@@ -13,13 +13,17 @@ class PortfolioType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            // ->add('user')
             ->add('shares', 'entity', array(
                 'class' => 'FinanceBundle:Share',
                 'choice_label' => 'name',
-                'multiple' => true
+                'label' => 'shares',
+                'multiple' => true,
+                'translation_domain' => 'app',
             ))
-            ->add('save', 'submit')
+            ->add('save', 'submit', [
+                'label' => 'Save',
+                'translation_domain' => 'app'
+            ])
         ;
     }
 

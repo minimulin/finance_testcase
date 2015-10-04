@@ -1,14 +1,15 @@
 {% extends 'FinanceBundle::base.html.twig' %}
+{% trans_default_domain "app" %}
 
 {% block body -%}
-	<h1>Portfolio creation</h1>
+	<h1>{{ 'Portfolio creation'|trans }}</h1>
 
 	{{ form(form) }}
 
 	<ul class="record_actions">
 		<li>
-			<a href="{{ path('portfolio') }}">
-				Back to the list
+			<a class="btn btn-default" href="{{ path('portfolio') }}">
+				{{ 'Back to the list'|trans }}
 			</a>
 		</li>
 	</ul>
