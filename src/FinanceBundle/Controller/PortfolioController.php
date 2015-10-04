@@ -55,7 +55,6 @@ class PortfolioController extends Controller
         if ($form->isValid() && !empty($user)) {
             $em = $this->getDoctrine()->getManager();
             $entity->setUser($user);
-            // die(var_dump($entity));
             $em->persist($entity);
             $em->flush();
 
@@ -117,9 +116,13 @@ class PortfolioController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository('FinanceBundle:Portfolio')->find($id);
+        $user = $this->getUser();
+        if ($entity->getUser() != $user) {
+            throw $this->createNotFoundException($this->get('translator')->trans('You have no portfolio with this id', [], 'app'));
+        }
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Portfolio entity.');
+            throw $this->createNotFoundException($this->get('translator')->trans('Unable to find entity', [], 'app'));
         }
 
         $deleteForm = $this->createDeleteForm($id);
