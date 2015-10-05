@@ -10,9 +10,9 @@ class LoadSharesData implements FixtureInterface
 {
     private $data = [
         'YHOO' => 'Yahoo',
-        'Apple' => 'AAPL',
-        'Google' => 'GOOG',
-        'Яндекс' => 'YNDX',
+        'AAPL' => 'Apple',
+        'GOOG' => 'Google',
+        'YNDX' => 'Яндекс',
     ];
 
     /**
