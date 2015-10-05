@@ -2,16 +2,16 @@
 =========
 
 ## Установка
-Необходимо создать БД:
-```
-mkdir app/data
-touch app/data/data.db3
-app/console doctrine:database:create 
-app/console doctrine:schema:update
-```
+
 Установить дополнительные пакеты:
 ```
 composer install
+```
+
+Необходимо создать БД:
+```
+app/console doctrine:database:create 
+app/console doctrine:schema:update --force
 ```
 Запустить импорт фикстур
 ```
