@@ -1,0 +1,38 @@
+{% extends 'AppBundle::base.html.twig' %}
+{% trans_default_domain "app" %}
+
+{% block body -%}
+    <h1>{{ 'Share list'|trans }}</h1>
+    <a class="btn btn-default pull-right" href="{{ path('share_new') }}">{{ 'Create a new entry'|trans }}</a>
+
+    <table class="records_list">
+        <thead>
+            <tr class="row">
+                <th class="col-md-1">Id</th>
+                <th class="col-md-3">{{ 'Name'|trans }}</th>
+                <th class="col-md-3">{{ 'Code'|trans }}</th>
+                <th class="col-md-3">{{ 'Actions'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entity in entities %}
+            <tr class="row">
+                <td class="col-md-1"><a href="{{ path('share_show', { 'id': entity.id }) }}">{{ entity.id }}</a></td>
+                <td class="col-md-3">{{ entity.name }}</td>
+                <td class="col-md-3">{{ entity.code }}</td>
+                <td class="col-md-3">
+                <ul class="list-actions">
+                    <li>
+                        <a href="{{ path('share_show', { 'id': entity.id }) }}"><span class="glyphicon glyphicon-search" aria-hidden="true">&nbsp;{{ 'Show'|trans }}</a>
+                    </li>
+                    <li>
+                        <a href="{{ path('share_edit', { 'id': entity.id }) }}"><span class="glyphicon glyphicon-pencil" aria-hidden="true">&nbsp;{{ 'Edit'|trans }}</a>
+                    </li>
+                </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% endblock %}

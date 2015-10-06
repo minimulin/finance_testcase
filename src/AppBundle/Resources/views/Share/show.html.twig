@@ -1,0 +1,37 @@
+{% extends 'AppBundle::base.html.twig' %}
+{% trans_default_domain "app" %}
+
+{% block body -%}
+    <h1>{{ 'Share'|trans }}</h1>
+
+    <table class="record_properties">
+        <tbody>
+            <tr class="row">
+                <th class="col-md-2">Id</th>
+                <td class="col-md-3">{{ entity.id }}</td>
+            </tr>
+            <tr class="row">
+                <th class="col-md-2">{{ 'Name'|trans }}</th>
+                <td class="col-md-3">{{ entity.name }}</td>
+            </tr>
+            <tr class="row">
+                <th class="col-md-2">{{ 'Code'|trans }}</th>
+                <td class="col-md-3">{{ entity.code }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+        <ul class="record_actions">
+    <li>
+        <a class="btn btn-default" href="{{ path('share') }}">
+            {{ 'Back to the list'|trans }}
+        </a>
+    </li>
+    <li>
+        <a class="btn btn-default" href="{{ path('share_edit', { 'id': entity.id }) }}">
+            {{ 'Edit'|trans }}
+        </a>
+    </li>
+    <li>{{ form(delete_form) }}</li>
+</ul>
+{% endblock %}

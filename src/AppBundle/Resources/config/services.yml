@@ -1,0 +1,3 @@
+services:
+    yahoo_finance:
+        class:        AppBundle\Service\YahooFinanceService
