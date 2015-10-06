@@ -1,11 +1,14 @@
-{% extends 'AppBundle::base.html.twig' %}
-
+{% extends '::base.html.twig' %}
 {% trans_default_domain "app" %}
 
 {% block body -%}
-	<h1>{{ 'Share edit'|trans }} #{{ entity.id }}</h1>
+    <h1>{{ 'Share creation'|trans }}</h1>
 
-    {{ form(edit_form) }}
+    {{ form_start(form) }}
+		{{ form_widget(form) }}
+
+		<input type="submit" value="{{ 'Create'|trans }}" class="btn btn-default" />
+	{{ form_end(form) }}
 
         <ul class="record_actions">
     <li>
@@ -13,6 +16,5 @@
             {{ 'Back to the list'|trans }}
         </a>
     </li>
-    <li>{{ form(delete_form) }}</li>
 </ul>
 {% endblock %}

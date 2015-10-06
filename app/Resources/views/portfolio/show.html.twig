@@ -1,4 +1,4 @@
-{% extends 'AppBundle::base.html.twig' %}
+{% extends '::base.html.twig' %}
 
 {% trans_default_domain "app" %}
 
@@ -50,7 +50,7 @@
         data.addColumn('date', 'Date');
 
         {% for name in share_names %}
-        data.addColumn('number', '{{ name }}');
+          data.addColumn('number', '{{ name }}');
         {% endfor %}
 
         data.addRows([

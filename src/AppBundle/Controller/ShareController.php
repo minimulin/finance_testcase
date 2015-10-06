@@ -2,13 +2,13 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use AppBundle\Entity\Share;
 use AppBundle\Form\ShareType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Share controller.
@@ -19,36 +19,35 @@ class ShareController extends Controller
 {
 
     /**
-     * Lists all Share entities.
+     * Список всех акций
      *
      * @Route("/", name="share")
      * @Method("GET")
-     * @Template()
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $entities = $this->getDoctrine()
+            ->getRepository('AppBundle:Share')
+            ->findAll();
 
-        $entities = $em->getRepository('AppBundle:Share')->findAll();
-
-        return array(
+        return $this->render('views/share/index.html.twig', array(
             'entities' => $entities,
-        );
+        ));
     }
+
     /**
-     * Creates a new Share entity.
+     * Отображает форму создания новой акции
      *
-     * @Route("/", name="share_create")
-     * @Method("POST")
-     * @Template("AppBundle:Share:new.html.twig")
+     * @Route("/new", name="share_new")
+     * @Method({"GET", "POST"})
      */
-    public function createAction(Request $request)
+    public function newAction(Request $request)
     {
         $entity = new Share();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->persist($entity);
             $em->flush();
@@ -56,171 +55,112 @@ class ShareController extends Controller
             return $this->redirect($this->generateUrl('share_show', array('id' => $entity->getId())));
         }
 
-        return array(
+        return $this->render('views/share/new.html.twig', array(
             'entity' => $entity,
-            'form'   => $form->createView(),
-        );
+            'form' => $form->createView(),
+        ));
     }
 
     /**
-     * Creates a form to create a Share entity.
+     * Возвращает форму для создания новой акции
      *
-     * @param Share $entity The entity
+     * @param Share $entity Акция
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\Form Форма
      */
     private function createCreateForm(Share $entity)
     {
         $form = $this->createForm(new ShareType(), $entity, array(
-            'action' => $this->generateUrl('share_create'),
+            'action' => $this->generateUrl('share_new'),
             'method' => 'POST',
         ));
 
-        $form->add('submit', 'submit', array('label' => $this->get('translator')->trans('Create',[],'app')));
-
         return $form;
     }
 
     /**
-     * Displays a form to create a new Share entity.
-     *
-     * @Route("/new", name="share_new")
-     * @Method("GET")
-     * @Template()
-     */
-    public function newAction()
-    {
-        $entity = new Share();
-        $form   = $this->createCreateForm($entity);
-
-        return array(
-            'entity' => $entity,
-            'form'   => $form->createView(),
-        );
-    }
-
-    /**
-     * Finds and displays a Share entity.
+     * Отображает акцию
      *
      * @Route("/{id}", name="share_show")
      * @Method("GET")
-     * @Template()
+     * @ParamConverter("entity", class="AppBundle:Share")
      */
-    public function showAction($id)
+    public function showAction(Share $entity, $id)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('AppBundle:Share')->find($id);
-
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Share entity.');
         }
 
-        $deleteForm = $this->createDeleteForm($id);
-
-        return array(
-            'entity'      => $entity,
-            'delete_form' => $deleteForm->createView(),
-        );
+        return $this->render('views/share/show.html.twig', array(
+            'entity' => $entity,
+            'delete_form' => $this->createDeleteForm($id)->createView(),
+        ));
     }
 
     /**
-     * Displays a form to edit an existing Share entity.
+     * Форма редактирования акции
      *
      * @Route("/{id}/edit", name="share_edit")
-     * @Method("GET")
-     * @Template()
+     * @Method({"GET", "PUT"})
+     * @ParamConverter("entity", class="AppBundle:Share")
      */
-    public function editAction($id)
+    public function editAction(Request $request, Share $entity, $id)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('AppBundle:Share')->find($id);
-
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Share entity.');
         }
 
-        $editForm = $this->createEditForm($entity);
-        $deleteForm = $this->createDeleteForm($id);
-
-        return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-
-    /**
-    * Creates a form to edit a Share entity.
-    *
-    * @param Share $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
-    private function createEditForm(Share $entity)
-    {
-        $form = $this->createForm(new ShareType(), $entity, array(
-            'action' => $this->generateUrl('share_update', array('id' => $entity->getId())),
-            'method' => 'PUT',
-        ));
-
-        $form->add('submit', 'submit', array('label' => $this->get('translator')->trans('Update',[],'app')));
-
-        return $form;
-    }
-    /**
-     * Edits an existing Share entity.
-     *
-     * @Route("/{id}", name="share_update")
-     * @Method("PUT")
-     * @Template("AppBundle:Share:edit.html.twig")
-     */
-    public function updateAction(Request $request, $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('AppBundle:Share')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Share entity.');
-        }
-
-        $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createEditForm($entity);
         $editForm->handleRequest($request);
 
-        if ($editForm->isValid()) {
-            $em->flush();
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
 
             return $this->redirect($this->generateUrl('share_edit', array('id' => $id)));
         }
 
-        return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
+        return $this->render('views/share/edit.html.twig', array(
+            'entity' => $entity,
+            'edit_form' => $editForm->createView(),
+            'delete_form' => $this->createDeleteForm($id)->createView(),
+        ));
     }
+
     /**
-     * Deletes a Share entity.
+     * Возвращает форму создания акции
+     *
+     * @param Share $entity Акция
+     *
+     * @return \Symfony\Component\Form\Form Форма
+     */
+    private function createEditForm(Share $entity)
+    {
+        $form = $this->createForm(new ShareType(), $entity, array(
+            'action' => $this->generateUrl('share_edit', array('id' => $entity->getId())),
+            'method' => 'PUT',
+        ));
+
+        return $form;
+    }
+
+    /**
+     * Удаляет акцию
      *
      * @Route("/{id}", name="share_delete")
      * @Method("DELETE")
+     * @ParamConverter("entity", class="AppBundle:Share")
      */
-    public function deleteAction(Request $request, $id)
+    public function deleteAction(Request $request, Share $entity, $id)
     {
         $form = $this->createDeleteForm($id);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('AppBundle:Share')->find($id);
-
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find Share entity.');
             }
 
+            $em = $this->getDoctrine()->getManager();
             $em->remove($entity);
             $em->flush();
         }
@@ -229,18 +169,18 @@ class ShareController extends Controller
     }
 
     /**
-     * Creates a form to delete a Share entity by id.
+     * Создает форму удаления акции
      *
-     * @param mixed $id The entity id
+     * @param mixed $id Идентификатор акции
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\Form Форма
      */
     private function createDeleteForm($id)
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('share_delete', array('id' => $id)))
             ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('Delete',[],'app')))
+            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('Delete', [], 'app')))
             ->getForm()
         ;
     }

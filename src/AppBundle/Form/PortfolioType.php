@@ -20,10 +20,6 @@ class PortfolioType extends AbstractType
                 'multiple' => true,
                 'translation_domain' => 'app',
             ))
-            ->add('save', 'submit', [
-                'label' => 'Save',
-                'translation_domain' => 'app'
-            ])
         ;
     }
 

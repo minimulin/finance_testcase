@@ -5,10 +5,11 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\Portfolio;
 use AppBundle\Form\PortfolioType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * Portfolio controller.
@@ -19,32 +20,29 @@ class PortfolioController extends Controller
 {
 
     /**
-     * Lists all Portfolio entities.
+     * Список всех портфелей
      *
      * @Route("/", name="portfolio")
      * @Method("GET")
-     * @Template()
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $entities = $this->getDoctrine()
+            ->getRepository('AppBundle:Portfolio')
+            ->findByUser($this->getUser());
 
-        $user = $this->getUser();
-
-        $entities = $em->getRepository('AppBundle:Portfolio')->findByUser($user);
-
-        return array(
+        return $this->render('views/portfolio/index.html.twig', array(
             'entities' => $entities,
-        );
+        ));
     }
+
     /**
-     * Creates a new Portfolio entity.
+     * Отображает форму создания нового портфеля
      *
-     * @Route("/", name="portfolio_create")
-     * @Method("POST")
-     * @Template("AppBundle:Portfolio:new.html.twig")
+     * @Route("/new", name="portfolio_new")
+     * @Method({"GET", "POST"})
      */
-    public function createAction(Request $request)
+    public function newAction(Request $request)
     {
         $entity = new Portfolio();
         $form = $this->createCreateForm($entity);
@@ -52,7 +50,7 @@ class PortfolioController extends Controller
 
         $user = $this->getUser();
 
-        if ($form->isValid() && !empty($user)) {
+        if ($form->isSubmitted() && $form->isValid() && !empty($user)) {
             $em = $this->getDoctrine()->getManager();
             $entity->setUser($user);
             $em->persist($entity);
@@ -61,200 +59,139 @@ class PortfolioController extends Controller
             return $this->redirect($this->generateUrl('portfolio_show', array('id' => $entity->getId())));
         }
 
-        return array(
+        return $this->render('views/portfolio/new.html.twig', array(
             'entity' => $entity,
             'form' => $form->createView(),
-        );
+        ));
     }
 
     /**
-     * Creates a form to create a Portfolio entity.
+     * Возвращает форму для создания нового портфеля
      *
-     * @param Portfolio $entity The entity
+     * @param Portfolio $entity Портфель
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\Form Форма
      */
-    private function createCreateForm(Portfolio $entity)
+    protected function createCreateForm(Portfolio $entity)
     {
         $form = $this->createForm(new PortfolioType(), $entity, array(
-            'action' => $this->generateUrl('portfolio_create'),
+            'action' => $this->generateUrl('portfolio_new'),
             'method' => 'POST',
         ));
-
-        $form->add('submit', 'submit', array('label' => $this->get('translator')->trans('Create', [], 'app')));
 
         return $form;
     }
 
     /**
-     * Displays a form to create a new Portfolio entity.
-     *
-     * @Route("/new", name="portfolio_new")
-     * @Method("GET")
-     * @Template()
-     */
-    public function newAction()
-    {
-        $entity = new Portfolio();
-        $form = $this->createCreateForm($entity);
-
-        return array(
-            'entity' => $entity,
-            'form' => $form->createView(),
-        );
-    }
-
-    /**
-     * Finds and displays a Portfolio entity.
+     * Отображает портфель
      *
      * @Route("/{id}", name="portfolio_show")
      * @Method("GET")
-     * @Template()
+     * @ParamConverter("entity", class="AppBundle:Portfolio")
      */
-    public function showAction($id)
+    public function showAction(Portfolio $entity, $id)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('AppBundle:Portfolio')->find($id);
-        $user = $this->getUser();
-        if ($entity->getUser() != $user) {
-            throw $this->createNotFoundException($this->get('translator')->trans('You have no portfolio with this id', [], 'app'));
-        }
-
         if (!$entity) {
             throw $this->createNotFoundException($this->get('translator')->trans('Unable to find entity', [], 'app'));
         }
 
-        $deleteForm = $this->createDeleteForm($id);
+        $this->checkUserCanAccessEntity($entity);
 
-        $chartData = $this->get('yahoo_finance')->getDataForLast2Years($entity->getShares());
-        $share_names = [];
-        foreach ($entity->getShares() as $share) {
-            $share_names[] = $share->getName();
-        }
+        list($share_names, $share_codes) = static::getSharesCodesAndNames($entity->getShares());
+        $share_names[] = $translated = $this->get('translator')->trans('portfolio', [], 'app');
 
-        $portfolio_trans = $translated = $this->get('translator')->trans('portfolio', [], 'app');
+        $historicalData = $this->get('yahoo_finance')->getDataForLast2Years($share_codes);
+        $chartData = $this->get('yahoo_finance')->calculateSummaryShareCostPerDay($historicalData, $share_codes);
 
-        foreach ($chartData as $key => $dayData) {
-            $chartData[$key][$portfolio_trans] = 0;
-            foreach ($share_names as $name) {
-                if (!isset($dayData[$name])) {
-                    $chartData[$key][$name] = 0;
-                } else {
-                    $chartData[$key][$portfolio_trans] += $chartData[$key][$name];
-                }
-            }
-        }
-
-        $share_names[] = $portfolio_trans;
-
-        ksort($chartData);
-
-        return array(
+        return $this->render('views/portfolio/show.html.twig', array(
             'entity' => $entity,
-            'delete_form' => $deleteForm->createView(),
+            'delete_form' => $this->createDeleteForm($id)->createView(),
             'chart_data' => $chartData,
             'share_names' => $share_names,
-        );
+        ));
     }
 
     /**
-     * Displays a form to edit an existing Portfolio entity.
+     * Возвращает массив кодов и наименований акций
+     * @param  array|PersistentCollection $shares Коллекция или массив акций
+     * @return array         Массив с наименованиями и кодами акций
+     */
+    protected static function getSharesCodesAndNames($shares)
+    {
+        $share_names = $share_codes = [];
+        foreach ($shares as $share) {
+            $share_names[] = $share->getName();
+            $share_codes[] = $share->getCode();
+        }
+        return array($share_names, $share_codes);
+    }
+
+    /**
+     * Форма редактирования портфеля
      *
      * @Route("/{id}/edit", name="portfolio_edit")
-     * @Method("GET")
-     * @Template()
+     * @Method({"GET", "PUT"})
+     * @ParamConverter("entity", class="AppBundle:Portfolio")
      */
-    public function editAction($id)
+    public function editAction(Request $request, Portfolio $entity, $id)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('AppBundle:Portfolio')->find($id);
-
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Portfolio entity.');
         }
 
-        $editForm = $this->createEditForm($entity);
-        $deleteForm = $this->createDeleteForm($id);
+        $this->checkUserCanAccessEntity($entity);
 
-        return array(
+        $editForm = $this->createEditForm($entity);
+        $editForm->handleRequest($request);
+
+        if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $this->getDoctrine()->getManager()->flush();
+
+            return $this->redirect($this->generateUrl('portfolio_edit', array('id' => $id)));
+        }
+
+        return $this->render('views/portfolio/edit.html.twig', array(
             'entity' => $entity,
             'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
+            'delete_form' => $this->createDeleteForm($id)->createView(),
+        ));
     }
 
     /**
-     * Creates a form to edit a Portfolio entity.
+     * Возвращает форму редактирования портфеля
      *
      * @param Portfolio $entity The entity
      *
      * @return \Symfony\Component\Form\Form The form
      */
-    private function createEditForm(Portfolio $entity)
+    protected function createEditForm(Portfolio $entity)
     {
         $form = $this->createForm(new PortfolioType(), $entity, array(
-            'action' => $this->generateUrl('portfolio_update', array('id' => $entity->getId())),
+            'action' => $this->generateUrl('portfolio_edit', array('id' => $entity->getId())),
             'method' => 'PUT',
         ));
 
-        $form->add('submit', 'submit', array('label' => $this->get('translator')->trans('Update', [], 'app')));
-
         return $form;
     }
+
     /**
-     * Edits an existing Portfolio entity.
-     *
-     * @Route("/{id}", name="portfolio_update")
-     * @Method("PUT")
-     * @Template("AppBundle:Portfolio:edit.html.twig")
-     */
-    public function updateAction(Request $request, $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('AppBundle:Portfolio')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Portfolio entity.');
-        }
-
-        $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createEditForm($entity);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isValid()) {
-            $em->flush();
-
-            return $this->redirect($this->generateUrl('portfolio_edit', array('id' => $id)));
-        }
-
-        return array(
-            'entity' => $entity,
-            'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
-    }
-    /**
-     * Deletes a Portfolio entity.
+     * Удаляет портфель
      *
      * @Route("/{id}", name="portfolio_delete")
      * @Method("DELETE")
+     * @ParamConverter("entity", class="AppBundle:Portfolio")
      */
-    public function deleteAction(Request $request, $id)
+    public function deleteAction(Request $request, Portfolio $entity, $id)
     {
         $form = $this->createDeleteForm($id);
         $form->handleRequest($request);
 
         if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('AppBundle:Portfolio')->find($id);
-
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find Portfolio entity.');
             }
 
+            $em = $this->getDoctrine()->getManager();
             $em->remove($entity);
             $em->flush();
         }
@@ -263,19 +200,27 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Creates a form to delete a Portfolio entity by id.
+     * Создает форму для удаления портфеля по его идентификатору
      *
-     * @param mixed $id The entity id
+     * @param mixed $id Идентификатор записи
      *
-     * @return \Symfony\Component\Form\Form The form
+     * @return \Symfony\Component\Form\Form Форма
      */
-    private function createDeleteForm($id)
+    protected function createDeleteForm($id)
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('portfolio_delete', array('id' => $id)))
             ->setMethod('DELETE')
             ->add('submit', 'submit', array('label' => $this->get('translator')->trans('Delete', [], 'app')))
-            ->getForm()
-        ;
+            ->getForm();
+    }
+
+    protected function checkUserCanAccessEntity(Portfolio $entity)
+    {
+        $user = $this->getUser();
+        //Пользователь может видеть только свои портфели
+        if ($entity->getUser() != $user) {
+            throw new AccessDeniedHttpException($this->get('translator')->trans('You have no portfolio with this id', [], 'app'));
+        }
     }
 }
