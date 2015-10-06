@@ -18,12 +18,12 @@
   <ul class="record_actions">
     <li>
       <a class="btn btn-default" href="{{ path('portfolio') }}">
-        {{ 'Back to the list'|trans }}
+        {{ 'list.back'|trans }}
       </a>
     </li>
     <li>
       <a class="btn btn-default" href="{{ path('portfolio_edit', { 'id': entity.id }) }}">
-        {{ 'Edit'|trans }}
+        {{ 'edit'|trans }}
       </a>
     </li>
     <li>{{ form(delete_form) }}</li>
@@ -71,13 +71,6 @@
               // Gives each series an axis name that matches the Y-axis below.
               0: {axis: 'Стоимость'},
               1: {axis: 'Время'}
-            },
-            axes: {
-              // Adds labels to each axis; they don't have to match the axis names.
-              y: {
-                Temps: {label: 'Стоимость (Celsius)'},
-                Daylight: {label: 'Daylight'}
-              }
             }
           }
 

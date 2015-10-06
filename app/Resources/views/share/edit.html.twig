@@ -3,18 +3,18 @@
 {% trans_default_domain "app" %}
 
 {% block body -%}
-	<h1>{{ 'Share edit'|trans }} #{{ entity.id }}</h1>
+	<h1>{{ 'share.edit'|trans }} #{{ entity.id }}</h1>
 
 	{{ form_start(edit_form) }}
 		{{ form_widget(edit_form) }}
 
-		<input type="submit" value="{{ 'Update'|trans }}" class="btn btn-default" />
+		<input type="submit" value="{{ 'update'|trans }}" class="btn btn-default" />
 	{{ form_end(edit_form) }}
 
 	<ul class="record_actions">
 		<li>
 			<a class="btn btn-default" href="{{ path('share') }}">
-				{{ 'Back to the list'|trans }}
+				{{ 'list.back'|trans }}
 			</a>
 		</li>
 		<li>{{ form(delete_form) }}</li>

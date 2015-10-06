@@ -7,6 +7,7 @@ use AppBundle\Form\ShareType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -40,6 +41,7 @@ class ShareController extends Controller
      *
      * @Route("/new", name="share_new")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function newAction(Request $request)
     {
@@ -68,7 +70,7 @@ class ShareController extends Controller
      *
      * @return \Symfony\Component\Form\Form Форма
      */
-    private function createCreateForm(Share $entity)
+    protected function createCreateForm(Share $entity)
     {
         $form = $this->createForm(new ShareType(), $entity, array(
             'action' => $this->generateUrl('share_new'),
@@ -84,11 +86,12 @@ class ShareController extends Controller
      * @Route("/{id}", name="share_show")
      * @Method("GET")
      * @ParamConverter("entity", class="AppBundle:Share")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function showAction(Share $entity, $id)
     {
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Share entity.');
+            throw $this->createNotFoundException('entity.found.error');
         }
 
         return $this->render('views/share/show.html.twig', array(
@@ -103,11 +106,12 @@ class ShareController extends Controller
      * @Route("/{id}/edit", name="share_edit")
      * @Method({"GET", "PUT"})
      * @ParamConverter("entity", class="AppBundle:Share")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function editAction(Request $request, Share $entity, $id)
     {
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Share entity.');
+            throw $this->createNotFoundException('entity.found.error');
         }
 
         $editForm = $this->createEditForm($entity);
@@ -133,7 +137,7 @@ class ShareController extends Controller
      *
      * @return \Symfony\Component\Form\Form Форма
      */
-    private function createEditForm(Share $entity)
+    protected function createEditForm(Share $entity)
     {
         $form = $this->createForm(new ShareType(), $entity, array(
             'action' => $this->generateUrl('share_edit', array('id' => $entity->getId())),
@@ -149,6 +153,7 @@ class ShareController extends Controller
      * @Route("/{id}", name="share_delete")
      * @Method("DELETE")
      * @ParamConverter("entity", class="AppBundle:Share")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function deleteAction(Request $request, Share $entity, $id)
     {
@@ -157,7 +162,7 @@ class ShareController extends Controller
 
         if ($form->isValid()) {
             if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Share entity.');
+                throw $this->createNotFoundException('entity.found.error');
             }
 
             $em = $this->getDoctrine()->getManager();
@@ -175,12 +180,12 @@ class ShareController extends Controller
      *
      * @return \Symfony\Component\Form\Form Форма
      */
-    private function createDeleteForm($id)
+    protected function createDeleteForm($id)
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('share_delete', array('id' => $id)))
             ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('Delete', [], 'app')))
+            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('delete', [], 'app')))
             ->getForm()
         ;
     }

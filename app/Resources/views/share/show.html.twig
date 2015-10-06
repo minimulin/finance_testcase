@@ -2,7 +2,7 @@
 {% trans_default_domain "app" %}
 
 {% block body -%}
-    <h1>{{ 'Share'|trans }}</h1>
+    <h1>{{ 'share'|trans }}</h1>
 
     <table class="record_properties">
         <tbody>
@@ -11,11 +11,11 @@
                 <td class="col-md-3">{{ entity.id }}</td>
             </tr>
             <tr class="row">
-                <th class="col-md-2">{{ 'Name'|trans }}</th>
+                <th class="col-md-2">{{ 'name'|trans }}</th>
                 <td class="col-md-3">{{ entity.name }}</td>
             </tr>
             <tr class="row">
-                <th class="col-md-2">{{ 'Code'|trans }}</th>
+                <th class="col-md-2">{{ 'code'|trans }}</th>
                 <td class="col-md-3">{{ entity.code }}</td>
             </tr>
         </tbody>
@@ -24,12 +24,12 @@
         <ul class="record_actions">
     <li>
         <a class="btn btn-default" href="{{ path('share') }}">
-            {{ 'Back to the list'|trans }}
+            {{ 'list.back'|trans }}
         </a>
     </li>
     <li>
         <a class="btn btn-default" href="{{ path('share_edit', { 'id': entity.id }) }}">
-            {{ 'Edit'|trans }}
+            {{ 'edit'|trans }}
         </a>
     </li>
     <li>{{ form(delete_form) }}</li>

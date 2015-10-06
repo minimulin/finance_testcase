@@ -7,6 +7,7 @@ use AppBundle\Form\PortfolioType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -24,6 +25,7 @@ class PortfolioController extends Controller
      *
      * @Route("/", name="portfolio")
      * @Method("GET")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function indexAction()
     {
@@ -41,6 +43,7 @@ class PortfolioController extends Controller
      *
      * @Route("/new", name="portfolio_new")
      * @Method({"GET", "POST"})
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function newAction(Request $request)
     {
@@ -92,7 +95,7 @@ class PortfolioController extends Controller
     public function showAction(Portfolio $entity, $id)
     {
         if (!$entity) {
-            throw $this->createNotFoundException($this->get('translator')->trans('Unable to find entity', [], 'app'));
+            throw $this->createNotFoundException($this->get('translator')->trans('entity.found.error', [], 'app'));
         }
 
         $this->checkUserCanAccessEntity($entity);
@@ -132,11 +135,12 @@ class PortfolioController extends Controller
      * @Route("/{id}/edit", name="portfolio_edit")
      * @Method({"GET", "PUT"})
      * @ParamConverter("entity", class="AppBundle:Portfolio")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function editAction(Request $request, Portfolio $entity, $id)
     {
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Portfolio entity.');
+            throw $this->createNotFoundException('entity.found.error');
         }
 
         $this->checkUserCanAccessEntity($entity);
@@ -180,6 +184,7 @@ class PortfolioController extends Controller
      * @Route("/{id}", name="portfolio_delete")
      * @Method("DELETE")
      * @ParamConverter("entity", class="AppBundle:Portfolio")
+     * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
      */
     public function deleteAction(Request $request, Portfolio $entity, $id)
     {
@@ -188,7 +193,7 @@ class PortfolioController extends Controller
 
         if ($form->isValid()) {
             if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Portfolio entity.');
+                throw $this->createNotFoundException('entity.found.error');
             }
 
             $em = $this->getDoctrine()->getManager();
@@ -211,7 +216,7 @@ class PortfolioController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('portfolio_delete', array('id' => $id)))
             ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('Delete', [], 'app')))
+            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('delete', [], 'app')))
             ->getForm();
     }
 
@@ -220,7 +225,7 @@ class PortfolioController extends Controller
         $user = $this->getUser();
         //Пользователь может видеть только свои портфели
         if ($entity->getUser() != $user) {
-            throw new AccessDeniedHttpException($this->get('translator')->trans('You have no portfolio with this id', [], 'app'));
+            throw new AccessDeniedHttpException($this->get('translator')->trans('portfolio.access', [], 'app'));
         }
     }
 }

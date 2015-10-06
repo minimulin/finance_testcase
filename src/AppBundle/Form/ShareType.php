@@ -16,9 +16,11 @@ class ShareType extends AbstractType
     {
         $builder
             ->add('name','text',[
+                'label' => 'name',
                 'translation_domain' => 'app'
             ])
             ->add('code','text',[
+                'label' => 'code',
                 'translation_domain' => 'app'
             ])
         ;

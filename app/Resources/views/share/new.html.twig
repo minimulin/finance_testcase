@@ -2,18 +2,18 @@
 {% trans_default_domain "app" %}
 
 {% block body -%}
-    <h1>{{ 'Share creation'|trans }}</h1>
+    <h1>{{ 'share.creation'|trans }}</h1>
 
     {{ form_start(form) }}
 		{{ form_widget(form) }}
 
-		<input type="submit" value="{{ 'Create'|trans }}" class="btn btn-default" />
+		<input type="submit" value="{{ 'create'|trans }}" class="btn btn-default" />
 	{{ form_end(form) }}
 
         <ul class="record_actions">
     <li>
         <a class="btn btn-default" href="{{ path('share') }}">
-            {{ 'Back to the list'|trans }}
+            {{ 'list.back'|trans }}
         </a>
     </li>
 </ul>

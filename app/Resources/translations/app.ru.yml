@@ -2,25 +2,30 @@ sitename: Тестовое задание
 main: Главная
 shares: Акции
 portfolio: Портфель
+share: Акция
 filter: Фильтр
-Back to the list: Назад к списку
-Edit: Редактировать
-Delete: Удалить
-Portfolio edit: Редактирование портфолио
-Update: Обновить
-Save: Сохранить
-Portfolio list: Список портфелей
-Create a new entry: Созадать новую запись
-Show: Просмотреть
-Actions: Действия
-Shares: Акции
-Share list: Список акций
-Code: Код
-Name: Наименование
-Share: Акция
-Share edit: Редактирование акции
-Share creation: Создание акции
-Portfolio creation: Создание портфеля
-Create: Создать
-You have no portfolio with this id: У вас нет портфелей с данным идентификатором
-Unable to find entity: Не удалось найти запись
+
+list.back: Назад к списку
+create.new: Созадать новую запись
+actions: Действия
+
+edit: Редактировать
+delete: Удалить
+update: Обновить
+save: Сохранить
+show: Просмотреть
+create: Создать
+
+portfolio.edit: Редактирование портфолио
+portfolio.list: Список портфелей
+portfolio.creation: Создание портфеля
+
+share.list: Список акций
+code: Код
+name: Наименование
+
+share.edit: Редактирование акции
+share.creation: Создание акции
+
+portfolio.access: У вас нет портфелей с данным идентификатором
+entity.found.error: Не удалось найти запись

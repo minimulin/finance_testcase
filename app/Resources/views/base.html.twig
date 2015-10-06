@@ -15,7 +15,7 @@
 		<title>{{'sitename'|trans}} | {% block title %}Welcome!{% endblock %}</title>
 
 		{% block stylesheets %}
-			{% stylesheets '@AppBundle/Resources/public/*.css' %}
+			{% stylesheets 'assets/*.css' %}
 				<link rel="stylesheet" href="{{ asset_url }}" />
 			{% endstylesheets %}
 		{% endblock %}
@@ -90,7 +90,7 @@
 		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 		{% block javascripts %}
-			{% javascripts '@AppBundle/Resources/public/*.js' %}
+			{% javascripts 'assets/*.js' %}
 				<script src="{{ asset_url }}"></script>
 			{% endjavascripts %}
 		{% endblock %}
