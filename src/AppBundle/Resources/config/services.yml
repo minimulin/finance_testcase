@@ -1,3 +1,14 @@
 services:
-    yahoo_finance:
-        class:        AppBundle\Service\YahooFinanceService
+    response.parser:
+        class: AppBundle\Utils\JsonpYahooResponseParser
+
+    data.receiver:
+        class: AppBundle\Utils\GuzzleDataReceiver
+        public: false
+
+    yahoo.finance:
+        class:        AppBundle\Utils\YahooFinanceService
+        arguments:
+            parser: @response.parser
+            dataReceiver: @data.receiver
+            format: "@=service('response.parser').getFormat()"

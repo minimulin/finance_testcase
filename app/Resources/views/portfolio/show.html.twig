@@ -1,7 +1,5 @@
 {% extends '::base.html.twig' %}
 
-{% trans_default_domain "app" %}
-
 {% block body -%}
 <h1>{{ 'portfolio'|trans }} #{{ entity.id }}</h1>
 
@@ -47,7 +45,7 @@
       function drawCharts() {
 
         var data = new google.visualization.DataTable();
-        data.addColumn('date', 'Date');
+        data.addColumn('string', 'Date');
 
         {% for name in share_names %}
           data.addColumn('number', '{{ name }}');
@@ -55,7 +53,7 @@
 
         data.addRows([
           {% for share_date,share_data in chart_data %}
-          [new Date('{{share_date}}'),
+          ['{{share_date}}',
           {{share_data|join(',')}}
           ],
           {% endfor %}

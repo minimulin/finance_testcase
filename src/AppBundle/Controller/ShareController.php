@@ -185,7 +185,7 @@ class ShareController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('share_delete', array('id' => $id)))
             ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('delete', [], 'app')))
+            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('delete')))
             ->getForm()
         ;
     }

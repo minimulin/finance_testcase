@@ -18,7 +18,6 @@ class PortfolioType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'shares',
                 'multiple' => true,
-                'translation_domain' => 'app',
             ))
         ;
     }

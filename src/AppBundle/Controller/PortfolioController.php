@@ -95,16 +95,15 @@ class PortfolioController extends Controller
     public function showAction(Portfolio $entity, $id)
     {
         if (!$entity) {
-            throw $this->createNotFoundException($this->get('translator')->trans('entity.found.error', [], 'app'));
+            throw $this->createNotFoundException($this->get('translator')->trans('entity.found.error'));
         }
 
         $this->checkUserCanAccessEntity($entity);
 
         list($share_names, $share_codes) = static::getSharesCodesAndNames($entity->getShares());
-        $share_names[] = $translated = $this->get('translator')->trans('portfolio', [], 'app');
+        $share_names[] = $translated = $this->get('translator')->trans('portfolio');
 
-        $historicalData = $this->get('yahoo_finance')->getDataForLast2Years($share_codes);
-        $chartData = $this->get('yahoo_finance')->calculateSummaryShareCostPerDay($historicalData, $share_codes);
+        $chartData = $this->get('yahoo.finance')->getDataWithSummary($share_codes);
 
         return $this->render('views/portfolio/show.html.twig', array(
             'entity' => $entity,
@@ -216,7 +215,7 @@ class PortfolioController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('portfolio_delete', array('id' => $id)))
             ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('delete', [], 'app')))
+            ->add('submit', 'submit', array('label' => $this->get('translator')->trans('delete')))
             ->getForm();
     }
 
@@ -225,7 +224,7 @@ class PortfolioController extends Controller
         $user = $this->getUser();
         //Пользователь может видеть только свои портфели
         if ($entity->getUser() != $user) {
-            throw new AccessDeniedHttpException($this->get('translator')->trans('portfolio.access', [], 'app'));
+            throw new AccessDeniedHttpException($this->get('translator')->trans('portfolio.access'));
         }
     }
 }
